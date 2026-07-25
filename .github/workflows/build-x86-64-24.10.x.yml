@@ -112,7 +112,22 @@ jobs:
             -e PPPOE_ACCOUNT=${{ inputs.pppoe_account }} \
             -e PPPOE_PASSWORD=${{ inputs.pppoe_password }} \
           immortalwrt/imagebuilder:x86-64-openwrt-${luci_version} /bin/bash /home/build/immortalwrt/build.sh
+      
+      - name: Fix permissions
+        run: sudo chown -R $USER:$USER ${{ github.workspace }}/bin
 
+      - name: Convert img to qcow2
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y qemu-utils
+          cd ${{ github.workspace }}/bin/targets/x86/64
+          IMG_GZ=$(ls *squashfs-combined-efi.img.gz)
+          IMG="${IMG_GZ%.gz}"
+          QCOW2="${IMG%.img}.qcow2"
+          gunzip -k "$IMG_GZ"
+          qemu-img convert -f raw -O qcow2 "$IMG" "$QCOW2"
+          ls -lh
+      
       - name: Create info
         run: |
           cat > ${{ github.workspace }}/router-info.md <<EOF
