@@ -124,7 +124,7 @@ jobs:
           ls -lh
 
           # 解压img.gz
-          gzip -d *squashfs-combined-efi.img.gz
+          gunzip -f *squashfs-combined-efi.img.gz
 
           IMG=$(ls *squashfs-combined-efi.img | head -n1)
 
